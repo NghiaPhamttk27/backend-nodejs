@@ -1,14 +1,37 @@
-const http = require('http');
+// const express = require('express')
+import express from 'express'
+import dotenv from 'dotenv';
+import configViewEngine from './src/config/viewEngine.js';
+import router from './src/routes/web.js';
+import mysql from 'mysql2'
 
-const hostname = 'localhost';
-const port = 3000;
+dotenv.config();
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World\n HOI DAN IT');
+const app = express()
+const port = process.env.PORT || 8888
+const hostname = process.env.HOST_NAME
+
+//test connection
+const connection = mysql.createConnection({
+    host: process.env.HOST_NAME,
+    port: 3307,
+    user: 'root',
+    password: '123456',
+    database: 'hoidanit'
 })
 
-server.listen(port, hostname, ()=> {
-    console.log(`Server running at http://${hostname}:${port}/`);
+connection.query(
+    'SELECT * FROM Users u',
+    function (err, results, fields) {
+        console.log(">>result", results);
+        console.log(">>fields", fields);
+    }
+)
+
+configViewEngine(app);
+
+app.use('/', router);
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
 })
